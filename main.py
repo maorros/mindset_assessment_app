@@ -15,6 +15,27 @@ class ZeroScreen(Screen):
 class QuestionScreen(Screen):
     current_question = 0
 
+    def __init__(self, **kwargs):
+        super(Screen, self).__init__()
+        self.init_circles()
+        self.phrases_A = ['bla A 1',
+                          'bla A 2',
+                          'bla A 3',
+                          'bla A 4',
+                          'bla A 5',
+                          'bla A 6',
+                          'bla A 7',
+                          'bla A 8']
+        self.phrases_B = ['bla B 1',
+                          'bla B 2',
+                          'bla B 3',
+                          'bla B 4',
+                          'bla B 5',
+                          'bla B 6',
+                          'bla B 7',
+                          'bla B 8']
+        self.question = 'put text like to whom do you relate?'
+
     def on_enter(self, *args):
         if self.current_question == 0:
             TTS.speak(['Look at these pieces. Look at these pictures. If you put the pieces together, they will make one of the pictures. Press the picture the pieces make.'])
@@ -23,7 +44,7 @@ class QuestionScreen(Screen):
         self.current_question += 1
  #       self.init_circles()
 
-    def init_circles(self,dt):
+    def init_circles(self):
 
         self.g_right= InstructionGroup()
         self.g_right.add(Color(0,0,1,1))
@@ -60,6 +81,12 @@ class QuestionScreen(Screen):
         self.canvas.remove(self.g_right)
         self.canvas.ask_update()
 
+    def first_phrase(self, dt):
+        print "first bla"
+
+    def second_phrase(self, dt):
+        print "second bla"
+
 
 class MindsetAssessmentApp(App):
 
@@ -85,39 +112,34 @@ class MindsetAssessmentApp(App):
     def next_question(self):
         self.current_question += 1
 
-        self.question_screen.ids['A_button'].background_normal = 'images/blue.jpg'
-        self.question_screen.ids['B_button'].background_normal = 'images/green.jpg'
-        # self.question_screen.ids['C_button'].background_normal = 'images/CMTT_A_Order1_Page_' + \
-        #                                                          str(self.current_question*2).zfill(2) + '_C.jpg'
-        # self.question_screen.ids['D_button'].background_normal = 'images/CMTT_A_Order1_Page_' + \
-        #                                                          str(self.current_question*2).zfill(2) + '_D.jpg'
-        # self.question_screen.ids['pieces'].source = 'images/CMTT_A_Order1_Page_' + \
-        #                                             str(self.current_question*2+1).zfill(2) + '.jpg'
+        self.question_screen.ids['A_button'].disabled = True
+        self.question_screen.ids['B_button'].disabled = True
 
-        # because log goes after this, the name is changed to (real number - 1)
         self.question_screen.ids['A_button'].name = str(self.current_question-1) + '_A'
         self.question_screen.ids['B_button'].name = str(self.current_question-1) + '_B'
-        # self.question_screen.ids['C_button'].name = str(self.current_question-1) + '_C'
-        # self.question_screen.ids['D_button'].name = str(self.current_question-1) + '_D'
 
         self.sm.current = 'question_screen'
-        Clock.schedule_once(self.question_screen.init_circles, 1)
         Clock.schedule_once(self.question_screen.right_circle, 2)
-        print 'R'
+        Clock.schedule_once(self.question_screen.first_phrase, 2)
+        TTS.speak(self.question_screen.phrases_A[self.current_question-1], TTS.finished)
+        print ('next', self.question_screen.phrases_A[self.current_question-1])
+
         Clock.schedule_once(self.question_screen.left_circle, 3)
-        print 'L'
+        Clock.schedule_once(self.question_screen.second_phrase, 3)
+        TTS.speak(self.question_screen.phrases_B[self.current_question-1], TTS.finished)
+        print ('next', self.question_screen.phrases_B[self.current_question-1])
+
         Clock.schedule_once(self.question_screen.no_circles, 4)
-        #self.question_screen.init_circles()
+        TTS.speak(self.question_screen.question, TTS.finished)
+        print ('next',self.question_screen.question)
+        self.question_screen.ids['A_button'].disabled = False
+        self.question_screen.ids['B_button'].disabled = False
 
     def pressed(self, answer):
         print(answer)
-        if self.current_question >= 32:
+        if self.current_question >= 7:
             self.end_game()
 
-        # if self.current_question % 2 ==3:
-        #     self.question_screen.left_circle()
-        # else:
-        #     self.question_screen.right_circle()
         self.next_question()
 
     def end_game(self):

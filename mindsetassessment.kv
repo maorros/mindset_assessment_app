@@ -42,6 +42,8 @@
             pos: root.width * 0.80 - self.width * 0.5, root.height * 0.25 - self.height * 0.5
             on_press: app.pressed(self.name)
             background_normal: 'images/blue.jpg'
+            background_disabled_normal: 'images/blue.jpg'
+            background_down: 'images/blue_pressed.jpg'
 
         LoggedButton:
             id: B_button
@@ -50,12 +52,7 @@
             pos: root.width * 0.20 - self.width * 0.5, root.height * 0.25 - self.height * 0.5
             on_press: app.pressed(self.name)
             background_normal: 'images/green.jpg'
+            background_disabled_normal: 'images/green.jpg'
+            background_down: 'images/green_pressed.jpg'
 
-        Image:
-            id: pieces
-            name: 'pieces'
-            size: root.width * 0.35 , root.width * 0.35
-            pos: root.width * 0.8 - self.width * 0.5, root.height * 0.7 - self.height * 0.5
-            source: 'images/CMTT_A_Order1_Page_03.jpg'
-            opacity: 0
 
