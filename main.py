@@ -64,28 +64,40 @@ class QuestionScreen(Screen):
 
  #       self.canvas.ask_update()
 
-    def right_circle(self,dt):
+    def right_circle(self):
         self.canvas.remove(self.g_left)
         self.canvas.remove(self.g_right)
         self.canvas.add(self.g_right)
         self.canvas.ask_update()
 
-    def left_circle(self,dt):
+    def left_circle(self):
         self.canvas.remove(self.g_left)
         self.canvas.remove(self.g_right)
         self.canvas.add(self.g_left)
         self.canvas.ask_update()
 
-    def no_circles(self, dt):
+    def no_circles(self):
         self.canvas.remove(self.g_left)
         self.canvas.remove(self.g_right)
         self.canvas.ask_update()
 
-    def first_phrase(self, dt):
-        print "first bla"
+    def first_phrase(self, current_question):
+        print self.phrases_A[current_question - 1]
+        TTS.speak(self.phrases_A[current_question - 1], TTS.finished)
 
-    def second_phrase(self, dt):
-        print "second bla"
+    def second_phrase(self, current_question):
+        print self.phrases_B[current_question - 1]
+        TTS.speak(self.phrases_B[current_question - 1], TTS.finished)
+
+    def question_phrase(self):
+        print self.question
+        TTS.speak(self.question, TTS.finished)
+
+    def enable_buttons(self):
+        print 'buttons enabled'
+        self.ids['A_button'].disabled = False
+        self.ids['B_button'].disabled = False
+
 
 
 class MindsetAssessmentApp(App):
@@ -119,21 +131,20 @@ class MindsetAssessmentApp(App):
         self.question_screen.ids['B_button'].name = str(self.current_question-1) + '_B'
 
         self.sm.current = 'question_screen'
-        Clock.schedule_once(self.question_screen.right_circle, 2)
-        Clock.schedule_once(self.question_screen.first_phrase, 2)
-        TTS.speak(self.question_screen.phrases_A[self.current_question-1], TTS.finished)
-        print ('next', self.question_screen.phrases_A[self.current_question-1])
+        Clock.schedule_once(lambda dt: self.question_screen.right_circle(), 2)
+        Clock.schedule_once(lambda dt: self.question_screen.first_phrase(self.current_question), 2)
 
-        Clock.schedule_once(self.question_screen.left_circle, 3)
-        Clock.schedule_once(self.question_screen.second_phrase, 3)
-        TTS.speak(self.question_screen.phrases_B[self.current_question-1], TTS.finished)
-        print ('next', self.question_screen.phrases_B[self.current_question-1])
+        Clock.schedule_once(lambda dt: self.question_screen.left_circle(), 3)
+        Clock.schedule_once(lambda dt: self.question_screen.second_phrase(self.current_question), 3)
 
-        Clock.schedule_once(self.question_screen.no_circles, 4)
-        TTS.speak(self.question_screen.question, TTS.finished)
-        print ('next',self.question_screen.question)
-        self.question_screen.ids['A_button'].disabled = False
-        self.question_screen.ids['B_button'].disabled = False
+        Clock.schedule_once(lambda dt: self.question_screen.no_circles(), 4)
+
+        Clock.schedule_once(lambda dt: self.question_screen.question_phrase(), 5)
+   #     TTS.speak(self.question_screen.question, TTS.finished)
+   #     print ('next',self.question_screen.question)
+        Clock.schedule_once(lambda dt: self.question_screen.enable_buttons(), 5)
+        # self.question_screen.ids['A_button'].disabled = False
+        # self.question_screen.ids['B_button'].disabled = False
 
     def pressed(self, answer):
         print(answer)
