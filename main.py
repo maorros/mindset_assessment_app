@@ -8,40 +8,98 @@ from kivy.graphics.context_instructions import (Color)
 from kivy.graphics.vertex_instructions import (Ellipse)
 from kivy.graphics import *
 from kivy.core.window import Window
+from kivy.core.audio import SoundLoader
+
 class ZeroScreen(Screen):
     pass
 
 
 class QuestionScreen(Screen):
-    current_question = 0
+   # current_question = 0
 
-    def __init__(self, **kwargs):
+    def __init__(self, the_app,  **kwargs):
         super(Screen, self).__init__()
+        self.the_app = the_app
+        self.current_question = -1
         self.init_circles()
-        self.phrases_A = ['bla A 1',
-                          'bla A 2',
-                          'bla A 3',
-                          'bla A 4',
-                          'bla A 5',
-                          'bla A 6',
-                          'bla A 7',
-                          'bla A 8']
-        self.phrases_B = ['bla B 1',
-                          'bla B 2',
-                          'bla B 3',
-                          'bla B 4',
-                          'bla B 5',
-                          'bla B 6',
-                          'bla B 7',
-                          'bla B 8']
-        self.question = 'put text like to whom do you relate?'
+        self.phrases_A = []
+        self.phrases_B = []
+        self.number_of_questions = 0
+        self.question = None
+        self.sound_question = None
+        self.pre_post_flag = None
 
-    def on_enter(self, *args):
+        self.sounds_A = []
+        self.sounds_B = []
+
+    def init_sounds(self):
+        if self.pre_post_flag == 1:
+            self.phrases_A = ['fixed_01_buffy',
+                              'fixed_03_buffy',
+                              'growth_04_buffy',
+                              'fixed_05_buffy',
+                              'fixed_07_buffy',
+                              'growth_08_buffy',
+                              'fixed_09_buffy',
+                              'growth_10_buffy',
+                              'fixed_11_buffy',
+                              'fixed_13_buffy',
+                              'fixed_15_buffy']
+            self.phrases_B = ['growth_01_fluffy',
+                              'growth_03_fluffy',
+                              'fixed_04_fluffy',
+                              'growth_05_fluffy',
+                              'growth_07_fluffy',
+                              'fixed_08_fluffy',
+                              'growth_09_fluffy',
+                              'fixed_10_fluffy',
+                              'growth_11_fluffy',
+                              'growth_13_fluffy',
+                              'growth_15_fluffy']
+        elif self.pre_post_flag == 2:
+            self.phrases_A = ['fixed_01_buffy',
+                              'growth_02_buffy',
+                              'fixed_03_buffy',
+                              'growth_04_buffy',
+                              'growth_06_buffy',
+                              'fixed_07_buffy',
+                              'growth_08_buffy',
+                              'growth_12_buffy',
+                              'growth_14_buffy',
+                              'growth_16_buffy',
+                              'fixed_17_buffy']
+            self.phrases_B = ['growth_01_fluffy',
+                              'fixed_02_fluffy',
+                              'growth_03_fluffy',
+                              'fixed_04_fluffy',
+                              'fixed_06_fluffy',
+                              'growth_07_fluffy',
+                              'fixed_08_fluffy',
+                              'fixed_12_fluffy',
+                              'fixed_14_fluffy',
+                              'fixed_16_fluffy',
+                              'growth_17_fluffy']
+        self.number_of_questions = len(self.phrases_A)
+        self.question = 'which'
+        self.sound_question = SoundLoader.load("./sounds/" + self.question + ".wav")
+
+        self.intro1 = 'intro1'
+        self.sound_intro1 = SoundLoader.load("./sounds/" + self.intro1 + ".wav")
+
+        self.intro2 = 'intro2'
+        self.sound_intro2 = SoundLoader.load("./sounds/" + self.intro2 + ".wav")
+
+        self.sounds_A = []
+        self.sounds_B = []
+        for n in range(len(self.phrases_A)):
+            self.sounds_A.append(SoundLoader.load("./sounds/" + self.phrases_A[n] + ".wav"))
+            self.sounds_B.append(SoundLoader.load("./sounds/" + self.phrases_B[n] + ".wav"))
+ #   def on_enter(self, *args):
         # if self.current_question == 0:
         #     TTS.speak(['Look at these pieces. Look at these pictures. If you put the pieces together, they will make one of the pictures. Press the picture the pieces make.'])
         # else:
         #     TTS.speak(['Press the picture the pieces make.'])
-        self.current_question += 1
+ #       self.current_question += 1
  #
 
     def init_circles(self):
@@ -77,17 +135,37 @@ class QuestionScreen(Screen):
         self.canvas.remove(self.g_right)
         self.canvas.ask_update()
 
+    def introduction1(self):
+        print "introduction1"
+        self.sound_intro1.bind(on_stop=lambda d: self.introduction2())
+        self.sound_intro1.play()
+
+    def introduction2(self):
+        print "introduction2"
+        self.sound_intro2.bind(on_stop=lambda d: self.next_question())
+        self.sound_intro2.play()
+
     def first_phrase(self, current_question):
-        print self.phrases_A[current_question - 1]
-        TTS.speak(self.phrases_A[current_question - 1], TTS.finished)
+        print self.phrases_A[current_question]
+        self.right_circle()
+     #   TTS.speak(self.phrases_A[current_question - 1], TTS.finished)
+        self.sounds_A[current_question].bind(on_stop=lambda d: self.second_phrase(current_question))
+        self.sounds_A[current_question].play()
 
     def second_phrase(self, current_question):
-        print self.phrases_B[current_question - 1]
-        TTS.speak(self.phrases_B[current_question - 1], TTS.finished)
+        print self.phrases_B[current_question]
+        self.left_circle()
+    #    TTS.speak(self.phrases_B[current_question - 1], TTS.finished)
+        self.sounds_B[current_question].bind(on_stop=lambda d: self.question_phrase())
+        self.sounds_B[current_question].play()
+
 
     def question_phrase(self):
         print self.question
-        TTS.speak(self.question, TTS.finished)
+        self.no_circles()
+        self.sound_question.bind(on_stop=lambda d: self.enable_buttons())
+        self.sound_question.play()
+        #TTS.speak(self.question, TTS.finished)
 
     def enable_buttons(self):
         print 'buttons enabled'
@@ -95,55 +173,78 @@ class QuestionScreen(Screen):
         self.ids['B_button'].disabled = False
 
 
+    def next_question(self):
+        self.current_question += 1
+
+        self.ids['A_button'].disabled = True
+        self.ids['B_button'].disabled = True
+
+        self.ids['A_button'].name = str(self.current_question ) + '_A'
+        self.ids['B_button'].name = str(self.current_question ) + '_B'
+
+   #     self.sm.current = 'question_screen'
+        self.first_phrase(self.current_question)
+
+    def pressed(self, answer):
+        print(answer)
+        if self.current_question >= self.number_of_questions-1:
+            self.end_game()
+        else:
+            self.next_question()
+
+    def end_game(self):
+        self.the_app.stop()
 
 class MindsetAssessmentApp(App):
 
-    current_question = 0
 
     def build(self):
         # initialize logger
         KL.start([DataMode.file, DataMode.communication, DataMode.ros], self.user_data_dir)
         KL.log.insert(action=LogAction.data, obj='app', comment='mindset_assessment_app')
         # KL.start([DataMode.file], "/sdcard/curiosity/")#self.user_data_dir)
-        TTS.start()
+        # TTS.start()
         self.sm = ScreenManager()
 
         self.zero_screen = ZeroScreen(name='zero_screen')
         self.sm.add_widget(self.zero_screen)
 
-        self.question_screen = QuestionScreen(name='question_screen')
+        self.question_screen = QuestionScreen(name='question_screen',the_app=self)
         self.sm.add_widget(self.question_screen)
 
         self.sm.current = 'zero_screen'
         return self.sm
 
-    def next_question(self):
-        self.current_question += 1
-
-        self.question_screen.ids['A_button'].disabled = True
-        self.question_screen.ids['B_button'].disabled = True
-
-        self.question_screen.ids['A_button'].name = str(self.current_question-1) + '_A'
-        self.question_screen.ids['B_button'].name = str(self.current_question-1) + '_B'
-
+    def start_assessment(self, pre_post_flag):
         self.sm.current = 'question_screen'
-        Clock.schedule_once(lambda dt: self.question_screen.right_circle(), 2)
-        Clock.schedule_once(lambda dt: self.question_screen.first_phrase(self.current_question), 2)
-        Clock.schedule_once(lambda dt: self.question_screen.left_circle(), 3)
-        Clock.schedule_once(lambda dt: self.question_screen.second_phrase(self.current_question), 3)
-        Clock.schedule_once(lambda dt: self.question_screen.no_circles(), 4)
-        Clock.schedule_once(lambda dt: self.question_screen.question_phrase(), 5)
-        Clock.schedule_once(lambda dt: self.question_screen.enable_buttons(), 5)
+        self.question_screen.pre_post_flag = pre_post_flag # 1 for pre, 2 for post
+        print ('condition', self.question_screen.pre_post_flag)
+        self.question_screen.init_sounds()
+        self.question_screen.introduction1()
+    #    self.question_screen.next_question()
 
-    def pressed(self, answer):
-        print(answer)
-        if self.current_question >= 7:
-            self.end_game()
+    # def next_question(self):
+    #     self.current_question += 1
+    #
+    #     self.question_screen.ids['A_button'].disabled = True
+    #     self.question_screen.ids['B_button'].disabled = True
+    #
+    #     self.question_screen.ids['A_button'].name = str(self.current_question-1) + '_A'
+    #     self.question_screen.ids['B_button'].name = str(self.current_question-1) + '_B'
+    #
+    #     self.sm.current = 'question_screen'
+    #     self.question_screen.first_phrase(self.current_question)
+  #      self.question_screen.second_phrase(self.current_question)
 
-        self.next_question()
+        # Clock.schedule_once(lambda dt: self.question_screen.right_circle(), 2)
+        # Clock.schedule_once(lambda dt: self.question_screen.first_phrase(self.current_question), 2)
+        # Clock.schedule_once(lambda dt: self.question_screen.left_circle(), 3)
+        # Clock.schedule_once(lambda dt: self.question_screen.second_phrase(self.current_question), 3)
+        # Clock.schedule_once(lambda dt: self.question_screen.no_circles(), 4)
+        # Clock.schedule_once(lambda dt: self.question_screen.question_phrase(), 5)
+        # Clock.schedule_once(lambda dt: self.question_screen.enable_buttons(), 5)
 
-    def end_game(self):
-        self.stop()
+
 
 if __name__ == '__main__':
     MindsetAssessmentApp().run()
