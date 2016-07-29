@@ -3,6 +3,7 @@
 from kivy.app import App
 from kivy_communication import *
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.animation import Animation
 from text_handling import *
 from kivy.graphics.context_instructions import (Color)
 from kivy.graphics.vertex_instructions import (Ellipse)
@@ -103,37 +104,31 @@ class QuestionScreen(Screen):
  #
 
     def init_circles(self):
-
-        self.g_right= InstructionGroup()
-        self.g_right.add(Color(0,0,1,1))
-        size = (Window.width * 0.1, Window.width * 0.1)
-        pos = (Window.width*0.8- size[0]*0.5, Window.height*0.6 - size[1]*0.5)
-        E_right = Ellipse(pos=pos, size=size)
-        self.g_right.add(E_right)
-
-        self.g_left= InstructionGroup()
-        self.g_left.add(Color(0,1,0,1))
-        size = (Window.width * 0.1, Window.width * 0.1)
-        pos = (Window.width * 0.2 - size[0] * 0.5, Window.height * 0.6 - size[1] * 0.5)
-        E_left = Ellipse(pos=pos, size=size)
-        self.g_left.add(E_left)
+        self.ids['left_circle'].opacity = 0
+        self.ids['right_circle'].opacity = 0
 
     def right_circle(self):
-        self.canvas.remove(self.g_left)
-        self.canvas.remove(self.g_right)
-        self.canvas.add(self.g_right)
-        self.canvas.ask_update()
+        self.ids['right_circle'].opacity = 1
+        self.ids['left_circle'].opacity = 0
+        c=self.ids['right_circle']
+        print(c)
+        self.anim_circle(c)
 
     def left_circle(self):
-        self.canvas.remove(self.g_left)
-        self.canvas.remove(self.g_right)
-        self.canvas.add(self.g_left)
-        self.canvas.ask_update()
+        self.ids['right_circle'].opacity = 0
+        self.ids['left_circle'].opacity = 1
+        self.anim_circle(self.ids['left_circle'])
+
+    def anim_circle(self, the_circle):
+         Animation.cancel_all(self)
+         x = the_circle.x
+         y = the_circle.y
+         anim = Animation(x=x, y=y, duration=10, t='in_out_elastic')
+         anim.start(the_circle)
 
     def no_circles(self):
-        self.canvas.remove(self.g_left)
-        self.canvas.remove(self.g_right)
-        self.canvas.ask_update()
+        self.ids['right_circle'].opacity = 0
+        self.ids['left_circle'].opacity = 0
 
     def introduction1(self):
         print "introduction1"
@@ -165,35 +160,49 @@ class QuestionScreen(Screen):
         self.no_circles()
         self.sound_question.bind(on_stop=lambda d: self.enable_buttons())
         self.sound_question.play()
+
         #TTS.speak(self.question, TTS.finished)
 
     def enable_buttons(self):
         print 'buttons enabled'
+        self.ids['play_again'].opacity = 1
         self.ids['A_button'].disabled = False
         self.ids['B_button'].disabled = False
 
 
     def next_question(self):
         self.current_question += 1
-
+        self.ids['play_again'].opacity = 0
         self.ids['A_button'].disabled = True
         self.ids['B_button'].disabled = True
-
         self.ids['A_button'].name = str(self.current_question ) + '_A'
         self.ids['B_button'].name = str(self.current_question ) + '_B'
 
    #     self.sm.current = 'question_screen'
         self.first_phrase(self.current_question)
 
+    def pressed_play_again(self):
+        print("press_play_again")
+        self.ids['A_button'].disabled = True
+        self.ids['B_button'].disabled = True
+        self.ids['A_button'].name = str(self.current_question) + '_A'
+        self.ids['B_button'].name = str(self.current_question) + '_B'
+        #     self.sm.current = 'question_screen'
+        self.first_phrase(self.current_question)
+
+
     def pressed(self, answer):
-        print(answer)
-        if self.current_question >= self.number_of_questions-1:
-            self.end_game()
-        else:
-            self.next_question()
+            print(answer)
+            if self.current_question >= self.number_of_questions-1:
+                self.end_game()
+            else:
+                self.next_question()
 
     def end_game(self):
         self.the_app.stop()
+
+class left_circle(Widget):
+    pass
 
 class MindsetAssessmentApp(App):
 
