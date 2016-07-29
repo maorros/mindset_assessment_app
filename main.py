@@ -35,7 +35,7 @@ class QuestionScreen(Screen):
 
     def init_sounds(self):
         if self.pre_post_flag == 1:
-            self.phrases_A = ['fixed_01_buffy',
+            self.phrases_A = ['growth_02_buffy',
                               'fixed_03_buffy',
                               'growth_04_buffy',
                               'fixed_05_buffy',
@@ -44,9 +44,8 @@ class QuestionScreen(Screen):
                               'fixed_09_buffy',
                               'growth_10_buffy',
                               'fixed_11_buffy',
-                              'fixed_13_buffy',
-                              'fixed_15_buffy']
-            self.phrases_B = ['growth_01_fluffy',
+                              'growth_12_buffy']
+            self.phrases_B = ['fixed_02_fluffy',
                               'growth_03_fluffy',
                               'fixed_04_fluffy',
                               'growth_05_fluffy',
@@ -55,8 +54,7 @@ class QuestionScreen(Screen):
                               'growth_09_fluffy',
                               'fixed_10_fluffy',
                               'growth_11_fluffy',
-                              'growth_13_fluffy',
-                              'growth_15_fluffy']
+                              'fixed_12_fluffy']
         elif self.pre_post_flag == 2:
             self.phrases_A = ['fixed_01_buffy',
                               'growth_02_buffy',
@@ -65,8 +63,7 @@ class QuestionScreen(Screen):
                               'growth_06_buffy',
                               'fixed_07_buffy',
                               'growth_08_buffy',
-                              'growth_12_buffy',
-                              'growth_14_buffy',
+                              'fixed_13_buffy',
                               'growth_16_buffy',
                               'fixed_17_buffy']
             self.phrases_B = ['growth_01_fluffy',
@@ -76,8 +73,7 @@ class QuestionScreen(Screen):
                               'fixed_06_fluffy',
                               'growth_07_fluffy',
                               'fixed_08_fluffy',
-                              'fixed_12_fluffy',
-                              'fixed_14_fluffy',
+                              'growth_13_fluffy',
                               'fixed_16_fluffy',
                               'growth_17_fluffy']
         self.number_of_questions = len(self.phrases_A)
